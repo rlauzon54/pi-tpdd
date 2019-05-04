@@ -1,35 +1,54 @@
 # Pi-TPDD
-Raspberry Pi-based TPDD for the TRS-80 Model 100/102 (and probably the 200)
+Raspberry Pi-based TPDD for the TRS-80 Model 100/102/200, WP-2
 
-Currently in design.
+Version 1 complete
 
 # Hardware
 * Raspberry Pi Zero WH (https://www.adafruit.com/product/3708) - $14
 * Micro SD card - $10
-* Micro SD Card Extender (If you want to move the USB slot) (https://www.adafruit.com/product/3688) - $6.95
-
-* PowerBoost 1000 Charger - Rechargeable 5V Lipo USB Boost @ 1A - 1000C (https://www.adafruit.com/product/2465) - $19.95
-* Lithium Ion Battery Pack - 3.7V 6600mAh (https://www.adafruit.com/product/353) - $29.50
-* 5V 2.4A Switching Power Supply with 20AWG MicroUSB Cable  (https://www.adafruit.com/product/1995) - $7.50
-
+* Adafruit 128x64 OLED Bonnet for Raspberry Pi (https://www.adafruit.com/product/3531)
+* Adafruit Pi Protector for Raspberry Pi Model Zero (https://www.adafruit.com/product/2883) - $5
 * Tiny OTG Adapter - USB Micro to USB (https://www.adafruit.com/product/2910) - $2.95
 * A USB to Serial Null modem cable (https://www.amazon.com/StarTech-com-USB-Serial-Adapter-Modem/dp/B008634VJY/ref=sr_1_3) - $19.75
+* LiFePO4wered/Pi+ (https://www.crowdsupply.com/silicognition/lifepo4wered-pi-plus) - $49-$55 depending on the battery
 
-* Momentary switch (normally open) - Cheap from many places
-* Drive activity light - any red LED works
+Standoffs (like these: https://www.adafruit.com/product/3299) should also be used to provide some stability.
+
+I went with the LiFePO4wered/Pi+ because I had one.  Out of the UPSs for the Raspberry PI, this one has a real on/off button and can shut down your PI nicely when you turn it off.
+
+Note that you do really need the Pi Protector - at least the bottom part of it.  If you are using the LiFePO4wered/Pi+, you can short it out should you put the bare Pi on something metal.  That's a really big battery and it could cause some damage - not just to the Pi.  The LiFePO4wered/Pi+ site does have a warning about that.
 
 # Set up
-Standard Raspian install
+Standard Raspian headless install
 
-Install the power button (https://howchoo.com/g/mwnlytk3zmm/how-to-add-a-power-button-to-your-raspberry-pi) and software needed to shutdown the Pi when the button is pressed.
+You probably want to set up SSH so you can access it over your wireless network.
+
+Follow instructions for installing the OLED Bonnet and LiFePO4wered/Pi+.
+
+You will need to install Mono on your Pi0.
+
+Copy over LaddieAlpha (http://bitchin100.com/wiki/index.php?title=LaddieCon).  I suggest putting it in the bin folder (create if necessary).
+
+Copy over the "menu" folder in this project.  It should go in /home/pi.
+
+Add this line to /etc/rc.local
+
+'''
+sudo python3 /home/pi/menu/menu.py &
+'''
+
+Put your files in /home/pi/tpdd
 
 # Explanation
-The Raspberry PI is the basis for the installation.
+The menu.py program is the driver for the whole thing.
 
-The PowerBoost 1000 Charger both provides power to the Pi and recharges the Lithium Ion Battery Pack.  The 5V 2.4A Switching Power Supply is used for charging.
+It will start LaddieAlpha.  If you need to change anything about running LaddieAlpha, see laddieAlpha.py.  The configurable parts are at the top of the file.
 
-The Tiny OTG Adapter is used to connect the USB to Serial Null modem cable to the Pi.  The Serial cable is, of course, needed to connect to the Model 100/102.
+It will display the IP address or your wireless connection (if there is one - "None" otherwise).
 
-Since this is a headless installation, we need a way to nicely shutdown the Pi when we don't need it anymore.  And wake it up when we do need it.  So a momentary switch and some software is needed.
+It will display the running status of LaddieAlpha.  If LaddieAlpha should stop, move the joystick up and it will restart LaddieAlpha.
 
-A drive activity light is also useful so that we have an indication that everything is actually working.
+When the drive is active (i.e. transferring data), an indicator will display saying so.
+
+Pressing the joystick (as a button) while holding the #5 button down will tell the Pi to shut down.
+Pressing the joystick (as a button) while holding the #6 button down will tell the menu.py program to stop (currently commented out because it's there mainly for debugging purposes)
