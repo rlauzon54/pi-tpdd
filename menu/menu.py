@@ -2,11 +2,14 @@ import subprocess
 import time
 import board
 import busio
-import laddieAlpha
 from digitalio import DigitalInOut, Direction, Pull
 from PIL import Image, ImageDraw, ImageFont
 import adafruit_ssd1306
+
+import backup
 import getip
+import battery
+import laddieAlpha
 
 def center_text(text):
 	maxwidth, unused = draw.textsize(text, font=font)
@@ -78,21 +81,48 @@ laddieAlpha.start()
 
 shutdown=False
 exit_prog=False
+backup_process=None
 
-while True:
-	if not button_A.value:
-		if not button_C.value:
-			shutdown=True
-	#elif not button_B.value:
-	#	if not button_C.value:
-	#		exit_prog=True
-
+def display_status(ip_address,status,active,special,battery):
 	# Refresh the screen
 	draw.rectangle((0, 0, width, height), outline=0, fill=0)
 
-	ip_addresses=getip.getip()
-	x=center_text(ip_addresses[0])
-	draw.text((x, top+0), ip_addresses[0], font=font, fill=255)
+	x=center_text(ip_address)
+	draw.text((x, top+0), ip_address, font=font, fill=255)
+
+	x=center_text(status)
+	draw.text((x, top+12), status, font=font, fill=255)
+
+	x=center_text(active)
+	draw.text((x, top+24), active, font=font, fill=255)
+
+	x=center_text(special)
+	draw.text((x, top+36), special, font=font, fill=255)
+
+	x=center_text(battery)
+	draw.text((x, top+48), battery, font=font, fill=255)
+
+	disp.image(image)
+	disp.show()
+
+
+while True:
+	special="            "
+	if not button_A.value:
+		if not button_C.value:
+			shutdown=True
+			special="Shutdown requested"
+	elif not button_B.value:
+		if not button_C.value:
+			exit_prog=True
+		elif not button_D.value:
+			backup_process=backup.start(backup.backup_process)
+			special="Backup running"
+		elif not button_U.value:
+			backup_process=backup.start(backup.restore_process)
+			special="Restore running"
+
+	ip_address=getip.getip()[0]
 
 	# Look to see if LaddieAlpha is still running	
 	(running,active) = laddieAlpha.poll()
@@ -103,24 +133,22 @@ while True:
 		status="Stopped"
 		if not button_U.value:
 			laddieAlpha.start()
-	x=center_text(status)
-	draw.text((x, top+12), status, font=font, fill=255)
 
 	if active:
-		activeDisplay="Drive Active"
+		active_display="Drive Active"
 	else:
-		activeDisplay="            "
-	x=center_text(activeDisplay)
-	draw.text((x, top+24), activeDisplay, font=font, fill=255)
+		active_display="            "
 
-	# If shutdown was requested, display that indicator
-	if shutdown:
-		shutdown_text="Shutdown requested"
-		x=center_text(shutdown_text)
-		draw.text((0,top+36),shutdown_text,font=font,fill=255)
+	# Get the battery level
+	battery_level=battery.get_battery_level()
+	battery_display="Bat: {battery_level} mV left".format(battery_level=battery_level)
 
-	disp.image(image)
-	disp.show()
+	if backup_process != None:
+		if backup_process.poll() == False:
+			backup_process=None
+			special=""
+
+	display_status(ip_address,status,active_display,special,battery_display)
 
 	if exit_prog:
 		laddieAlpha.stop()
@@ -128,5 +156,8 @@ while True:
 		disp.show()
 		break;
 
+	# Note that we wait until here before starting the shutdown
+	# to give the Pi time to display that status.
 	if shutdown:
 		subprocess.call(["shutdown","-h","now"])
+
