@@ -39,6 +39,8 @@ sudo python3 /home/pi/menu/menu.py &
 
 Put your files in /home/pi/tpdd
 
+In the /home/pi/bin directory, create 2 bash scripts: backup, restore
+
 # Explanation
 The menu.py program is the driver for the whole thing.
 
@@ -51,4 +53,11 @@ It will display the running status of LaddieAlpha.  If LaddieAlpha should stop, 
 When the drive is active (i.e. transferring data), an indicator will display saying so.
 
 Pressing the joystick (as a button) while holding the #5 button down will tell the Pi to shut down.
+
 Pressing the joystick (as a button) while holding the #6 button down will tell the menu.py program to stop (currently commented out because it's there mainly for debugging purposes)
+
+Pressing the joystick DOWN while holding button #5 down will tell the Pi to run the backup script.
+
+Pressing the joystick UP while holding button #5 down will tell the Pi to run the restore script.
+
+For my Pi-TPDD, I set up ssh with a keypair.  So backup/restore script run rsync to my server using the key pair so that there is no login prompt.
