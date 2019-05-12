@@ -115,10 +115,10 @@ while True:
 	elif not button_B.value:
 		if not button_C.value:
 			exit_prog=True
-		elif not button_D.value:
+		elif not button_U.value:
 			backup_process=backup.start(backup.backup_process)
 			special="Backup running"
-		elif not button_U.value:
+		elif not button_D.value:
 			backup_process=backup.start(backup.restore_process)
 			special="Restore running"
 

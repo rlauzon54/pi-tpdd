@@ -56,8 +56,8 @@ Pressing the joystick (as a button) while holding the #5 button down will tell t
 
 Pressing the joystick (as a button) while holding the #6 button down will tell the menu.py program to stop (currently commented out because it's there mainly for debugging purposes)
 
-Pressing the joystick DOWN while holding button #5 down will tell the Pi to run the backup script.
+Pressing the joystick UP while holding button #6 down will tell the Pi to run the backup script.
 
-Pressing the joystick UP while holding button #5 down will tell the Pi to run the restore script.
+Pressing the joystick DOWN while holding button #6 down will tell the Pi to run the restore script.
 
 For my Pi-TPDD, I set up ssh with a keypair.  So backup/restore script run rsync to my server using the key pair so that there is no login prompt.
